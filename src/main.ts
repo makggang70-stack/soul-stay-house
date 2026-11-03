@@ -10,7 +10,7 @@ const houses: House[] = [
 ];
 function el<T extends HTMLElement = HTMLElement>(selector: string): T { const found=document.querySelector<T>(selector);if(!found)throw new Error(`Missing UI: ${selector}`);return found; }
 function input(id: keyof Levels): HTMLInputElement {return el<HTMLInputElement>(`#${id}`);}
-const engine=new AmbientEngine();
+const engine=new AmbientEngine(el<HTMLAudioElement>('#background-music'));
 const isHouse=(v:unknown):v is string=>typeof v==='string'&&houses.some(h=>h.slug===v);
 let activeHouse=readStored('house','forest',isHouse);
 function renderCards():void {
@@ -46,8 +46,41 @@ function scheduleSleepTimer(reset:boolean):void {
  if(sleepTimer!==null)clearTimeout(sleepTimer);sleepTimer=null;
  if(sleepDeadline!==null&&engine.isPlaying){sleepTimer=setTimeout(async()=>{await engine.pause();cancelSleepTimer();updatePlayUI();},Math.max(0,sleepDeadline-Date.now()));}
 }
-function updatePlayUI():void {el('#play-button').textContent=engine.isPlaying?'❚❚':'▶';el('#play-button').setAttribute('aria-label',engine.isPlaying?'일시정지':'재생');el('#playing-status').textContent=engine.isPlaying?'생성형 고요한 소리 재생 중':'재생 준비됨';}
-el('#play-button').addEventListener('click',async()=>{try{await engine.toggle();updatePlayUI();scheduleSleepTimer(engine.isPlaying&&sleepDeadline===null);}catch{el('#playing-status').textContent='오디오를 시작할 수 없습니다. 브라우저 설정을 확인하세요.';}});
+const trackSelect = el<HTMLSelectElement>('#music-track');
+const playButton = el<HTMLButtonElement>('#play-button');
+engine.setTrack(trackSelect.value);
+function updatePlayUI(): void {
+  const title = trackSelect.selectedOptions[0].text.split(' · ')[0];
+  el('#track-title').textContent = title;
+  playButton.textContent = engine.isPlaying ? '❚❚' : '▶';
+  playButton.setAttribute('aria-label', engine.isPlaying ? '일시정지' : '재생');
+  el('#playing-status').textContent = engine.isPlaying ? '재생 중' : '재생 준비됨';
+}
+async function changePlayback(changeTrack: boolean): Promise<void> {
+  playButton.disabled = trackSelect.disabled = true;
+  try {
+    if (changeTrack) {
+      const resume = engine.isPlaying;
+      if (resume) await engine.pause();
+      engine.setTrack(trackSelect.value);
+      if (resume) await engine.play();
+    } else {
+      await engine.toggle();
+      if (!engine.isPlaying) cancelSleepTimer();
+    }
+    updatePlayUI();
+    scheduleSleepTimer(engine.isPlaying && sleepDeadline === null);
+  } catch {
+    await engine.pause();
+    cancelSleepTimer();
+    updatePlayUI();
+    el('#playing-status').textContent = '음악을 재생할 수 없습니다. 다시 재생하거나 다른 곡을 선택하세요.';
+  } finally {
+    playButton.disabled = trackSelect.disabled = false;
+  }
+}
+playButton.addEventListener('click', () => void changePlayback(false));
+trackSelect.addEventListener('change', () => void changePlayback(true));
 el<HTMLSelectElement>('#timer').addEventListener('change',()=>scheduleSleepTimer(true));
 let entries=readStored<JournalEntry[]>('journal',[],isJournalList);
 function renderEntries():void { el('#entries').innerHTML=entries.length?entries.map(e=>`<article class="entry-card"><small>${escapeHTML(e.date)} · ${escapeHTML(e.mood)}</small><p>${escapeHTML(e.content)}</p><button class="secondary" data-remove="${escapeHTML(e.id)}">삭제</button></article>`).join(''):'<p class="muted">아직 작성한 기록이 없습니다.</p>';
