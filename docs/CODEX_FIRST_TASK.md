@@ -1,29 +1,14 @@
-# CODEX — First implementation task
+# Codex 첫 개발 작업
 
-You are the lead engineer for SOUL STAY HOUSE. Use this repository and existing functional prototype; **do not work in soul-stay-garden**.
+대상 저장소 `makggang70-stack/soul-stay-house`.
+기존 기능을 깨지 말고 차근차근 타입스크립트로 전환하세요.
 
-## Goal
-Turn the current one-page dependency-free proof of concept into a maintainable app foundation without losing working audio.
+1. `README.md` 및 `AGENTS.md` 확인.
+2. `script.js`의 오디오 엔진을 `src/audio/engine.ts`로 분리하고 엄격한 타입을 지정.
+3. 페이지 이동 중 오디오 유지, 재생 오류 처리, 믹서 설정 저장 검증.
+4. 기록장 로직을 `src/journal/`로 분리하고 입력 검증 및 삭제 검증.
+5. 모바일 반응형 및 접근성 확인.
+6. `npm run typecheck`, `npm run build` 실행. 가능하면 브라우저 E2E 테스트 추가.
+7. 작업 결과를 새 브랜치의 Pull Request로 제출.
 
-## Phase 1 checklist
-1. Audit existing files and document current behavior.
-2. Introduce Vite + TypeScript (or another justified lightweight stack); organize UI, audio engine, storage, and page routing into modules.
-3. Implement real scene switching with original or properly licensed assets (fallback CSS scenes must still work).
-4. Keep Web Audio engine as a singleton and preserve playback across routes.
-5. Add automated tests for settings persistence, journal CRUD and HTML-safe rendering, audio volume boundaries, and timer behavior. Avoid claiming actual sound output in headless tests.
-6. Add explicit privacy notice for local journal, browser audio restrictions, and prototype limitations.
-7. Add scripts for install/dev/build/test/lint, run them, and document actual results.
-8. Commit to a feature branch and open a PR if connected GitHub access permits.
-
-## Acceptance criteria
-- `npm install`, `npm run dev`, `npm run build`, `npm test` succeed after migration.
-- 3 houses and mobile navigation work.
-- Audio continues while navigating; no audio starts before click.
-- Preset and journal persist locally; private journal text never rendered as unsanitized HTML.
-- No unlicensed music, no fake online participants, no hard-coded secrets.
-
-## Next milestones (do not implement without prioritization)
-- Auth + PostgreSQL, server-backed private journal, personal presets.
-- Scheduled communal meditation sessions with verifiable real-time counts.
-- Licensed audio catalog and track rights/expiry admin.
-- Payment/subscription after actual user retention validation.
+허가받지 않은 외부 음악 사용 금지. 실제 공동 명상 인원수 조작 금지.
