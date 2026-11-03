@@ -60,10 +60,8 @@ async function changePlayback(changeTrack: boolean): Promise<void> {
   playButton.disabled = trackSelect.disabled = true;
   try {
     if (changeTrack) {
-      const resume = engine.isPlaying;
-      if (resume) await engine.pause();
       engine.setTrack(trackSelect.value);
-      if (resume) await engine.play();
+      await engine.play();
     } else {
       await engine.toggle();
       if (!engine.isPlaying) cancelSleepTimer();
