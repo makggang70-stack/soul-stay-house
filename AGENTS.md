@@ -14,7 +14,7 @@ A Korean-first, religion-neutral digital quiet house. Core user flow: choose nat
 8. Do not delete or repurpose the separate SOUL STAY GARDEN project.
 
 ## Current stack
-Dependency-free HTML, CSS and JS prototype. Migrate to React/Next.js only with clear incremental checkpoints and tests.
+Vite + strict TypeScript with dependency-free DOM UI. Migrate frameworks only with a clear testable need.
 
 ## Workflow
 Read README and docs/CODEX_FIRST_TASK.md. Make a plan, implement, run checks, review git diff, document status. Keep commits scoped.
