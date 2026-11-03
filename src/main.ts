@@ -14,11 +14,18 @@ const engine=new AmbientEngine(el<HTMLAudioElement>('#background-music'));
 const isHouse=(v:unknown):v is string=>typeof v==='string'&&houses.some(h=>h.slug===v);
 let activeHouse=readStored('house','forest',isHouse);
 function renderCards():void {
-  const cards=houses.map(h=>`<button class="house-card ${activeHouse===h.slug?'selected':''}" data-house="${h.slug}" aria-label="${h.name} 선택"><div class="card-art ${h.slug}-art"></div><div class="card-detail"><strong>${h.name} →</strong><p>${h.desc}</p></div></button>`).join('');
+  const cards=houses.map(h=>`<button class="house-card ${activeHouse===h.slug?'selected':''}" data-house="${h.slug}" aria-pressed="${activeHouse===h.slug}" aria-label="${h.name} 선택"><div class="card-art ${h.slug}-art"></div><div class="card-detail"><strong>${h.name} →</strong><p>${h.desc}</p></div></button>`).join('');
   el('#home-cards').innerHTML=cards;el('#house-cards').innerHTML=cards;
-  document.querySelectorAll<HTMLButtonElement>('[data-house]').forEach(button=>button.addEventListener('click',()=>{setHouse(button.dataset.house??'forest');location.hash='houses';}));
+  document.querySelectorAll<HTMLButtonElement>('[data-house]').forEach(button=>button.addEventListener('click',()=>{const homeCard=button.closest('#home-cards') !== null; setHouse(button.dataset.house??'forest'); if(homeCard) el('#home .hero').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}));
 }
-function setHouse(slug:string):void { const h=houses.find(x=>x.slug===slug)??houses[0];activeHouse=h.slug;writeStored('house',h.slug);
+function setHouse(slug:string, preview = true):void { const h=houses.find(x=>x.slug===slug)??houses[0];activeHouse=h.slug;writeStored('house',h.slug);
+  if (preview) {
+    const hero = el('#home .hero');
+    hero.className = `hero ${h.slug}`;
+    el('.hero .eyebrow').textContent = h.english;
+    el('.hero h1').textContent = h.name;
+    el('.hero p:not(.eyebrow)').textContent = h.desc;
+  }
   el('#scene-visual').className=`scene-visual ${h.slug}`;el('#scene-title').textContent=h.name;el('#scene-current').textContent=h.name;el('#scene-english').textContent=h.english;el('#scene-desc').textContent=h.desc;renderCards();
 }
 function navigate():void {const route=location.hash.replace('#','').split('/')[0]||'home';const valid=['home','houses','studio','journal','together'];const current=valid.includes(route)?route:'home';
@@ -95,4 +102,4 @@ function clearMeditation():void {if(meditationInterval!==null)clearInterval(medi
 function tickMeditation():void {if(meditationStartedAt===null)return;remaining=Math.max(0,baseRemaining-Math.floor((Date.now()-meditationStartedAt)/1000));paintClock();if(remaining===0){clearMeditation();el('#meditation-start').textContent='명상 완료';}}
 el('#meditation-start').addEventListener('click',()=>{if(meditationInterval!==null){tickMeditation();clearMeditation();el('#meditation-start').textContent='명상 이어하기';return;}if(remaining===0)remaining=1200;baseRemaining=remaining;meditationStartedAt=Date.now();el('#meditation-start').textContent='일시정지';tickMeditation();meditationInterval=setInterval(tickMeditation,250);});
 el('#meditation-reset').addEventListener('click',()=>{clearMeditation();remaining=1200;paintClock();el('#meditation-start').textContent='명상 시작';});
-setHouse(activeHouse);renderEntries();navigate();updatePlayUI();paintClock();
+setHouse(activeHouse, false);renderEntries();navigate();updatePlayUI();paintClock();
