@@ -30,11 +30,11 @@ el<HTMLButtonElement>('#menu-toggle').addEventListener('click',()=>{const nav=el
 el('#scene-audio-only').addEventListener('click',()=>{const hidden=el('.scene-panel').classList.toggle('visual-hidden');el('#scene-audio-only').textContent=hidden?'풍경 보이기':'풍경 숨기기';});
 el('#scene-fullscreen').addEventListener('click',async()=>{try{await el('#scene-visual').requestFullscreen();}catch{el('#playing-status').textContent='전체화면을 사용할 수 없습니다.';}});
 let levels=readStored<Levels>('levels',{...DEFAULT_LEVELS},isLevels);
-function getLevels():Levels {return {piano:clamp(Number(input('piano').value)),rain:clamp(Number(input('rain').value)),wind:clamp(Number(input('wind').value)),volume:clamp(Number(input('volume').value))};}
-function setSliders(values: Levels):void {(['piano','rain','wind','volume'] as const).forEach(id=>input(id).value=String(values[id]));applyVolumes();}
-function applyVolumes():void {levels=getLevels();(['piano','rain','wind','volume'] as const).forEach(id=>el(`#${id}-val`).textContent=`${levels[id]}%`);el<HTMLInputElement>('#player-volume').value=String(levels.volume);engine.setLevels(levels);}
+function getLevels():Levels {return {piano:clamp(Number(input('piano').value)),volume:clamp(Number(input('volume').value))};}
+function setSliders(values: Levels):void {(['piano','volume'] as const).forEach(id=>input(id).value=String(values[id]));applyVolumes();}
+function applyVolumes():void {levels=getLevels();(['piano','volume'] as const).forEach(id=>el(`#${id}-val`).textContent=`${levels[id]}%`);el<HTMLInputElement>('#player-volume').value=String(levels.volume);engine.setLevels(levels);}
 setSliders(levels);
-(['piano','rain','wind','volume'] as const).forEach(id=>input(id).addEventListener('input',()=>{applyVolumes();writeStored('levels',levels);}));
+(['piano','volume'] as const).forEach(id=>input(id).addEventListener('input',()=>{applyVolumes();writeStored('levels',levels);}));
 el<HTMLInputElement>('#player-volume').addEventListener('input',e=>{input('volume').value=(e.target as HTMLInputElement).value;applyVolumes();writeStored('levels',levels);});
 el('#mute-button').addEventListener('click',()=>{input('volume').value=input('volume').value==='0'?'65':'0';applyVolumes();writeStored('levels',levels);});
 el('#save-preset').addEventListener('click',()=>{el('#studio-status').textContent=writeStored('preset',getLevels())?'이 기기에 소리 조합을 저장했습니다.':'저장할 수 없습니다.';});
